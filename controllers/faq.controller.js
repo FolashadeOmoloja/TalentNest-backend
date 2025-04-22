@@ -8,9 +8,9 @@ export const createFaq = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { img, question, answer } = req.body;
+    const { question, answer } = req.body;
 
-    const faqs = new FAQS({ img, question, answer });
+    const faqs = new FAQS({ question, answer });
     await faqs.save();
 
     return res.status(201).json({
@@ -48,12 +48,12 @@ export const getAllFaqs = async (req, res) => {
 
 export const editFaqs = async (req, res) => {
   try {
-    const { img, question, answer } = req.body;
+    const { question, answer } = req.body;
     const { id } = req.params;
 
     const updatedFaqs = await FAQS.findByIdAndUpdate(
       id,
-      { img, question, answer },
+      { question, answer },
       { new: true }
     );
     if (!updatedFaqs) {

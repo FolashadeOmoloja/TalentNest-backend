@@ -2,10 +2,6 @@ import mongoose from "mongoose";
 
 const faqSchema = new mongoose.Schema(
   {
-    img: {
-      type: String,
-      required: true,
-    },
     question: {
       type: String,
       required: true,
