@@ -20,47 +20,104 @@ export const sendResetEmail = async (req, res) => {
     const token = jwt.sign({ email }, process.env.SECRET_KEY, {
       expiresIn: "1h",
     });
+
+    //change link to hosted url
     const resetLink = `http://localhost:3002/${route}?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Frack Email Verification",
+      subject: "TalentNest Email Verification",
       html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body { margin: 0; }
-              .container { font-family: Arial, sans-serif; text-align: center; background-color:white}
-              .button { display: inline-block; padding: 10px 20px; font-size: 16px; font-weight: 600; color: #ffffff; background-color: #000080; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-              .header { width: 100%; height: 50px; background-color: #000080; }
-              .img-div { margin-top: 10px; width: 100%; display: flex; justify-content: center; align-items: center;}
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header"></div>
-                    <div class="img-div">
-        <img src="cid:unique@frack" alt="Frack Logo" /> 
-      </div>
-              <h2 style="font-size: 32px; font-weight: 700">Email Verification</h2>
-              <p>Hi there!</p>
-              <p>Please verify your email address by clicking the button below.</p>
-              <p style="font-style: italic; color: rgb(80, 79, 79)">(This link will expire in 1 hour for security purposes.)</p>
-              <a href="${resetLink}" class="button">Verify Email</a>
-              <p>If you did not request this, please ignore this email.</p>
-              <p>Best regards, <br /><span style="font-weight: bold; color: #000080; margin-top: 10px; display: block; font-size: 18px;">Frack</span></p>
-            </div>
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              margin: 0;
+            }
+            .container {
+              font-family: Arial, sans-serif;
+              text-align: center;
+            }
+            .button {
+              display: inline-block;
+              padding: 10px 20px;
+              font-size: 16px;
+              font-weight: 600;
+              color: #ffffff;
+              background-color: #010d3e;
+              text-decoration: none;
+              border-radius: 5px;
+              margin-top: 20px;
+            }
+      
+            .header {
+              width: 100%;
+              height: 50px;
+              background-color: #010d3e;
+            }
+      
+            .img-div {
+              width: 40px;
+              height: 40px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
             <div class="header"></div>
-          </body>
-        </html>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                margin-top: 20px;
+              "
+            >
+              <img src="cid:unique@talentnest" class="img-div" />
+      
+              <div style="font-weight: 700; font-size: 24px; display: flex; gap: 0">
+                <span style="color: black">Talent</span>
+                <span style="color: #001354">Nest</span>
+              </div>
+            </div>
+            <h2 style="font-size: 32px; font-weight: 700; color: #010d3e">
+              Email Verification
+            </h2>
+            <p>Hi there!</p>
+            <p>Please verify your email address by clicking the button below.</p>
+            <p style="font-style: italic; color: rgb(80, 79, 79)">
+              (This link will expire in 1 hour for security purposes.)
+            </p>
+            <a href="${resetLink}" class="button">Verify Email</a>
+            <p>If you did not request this, please ignore this email.</p>
+            <p>
+              Best regards, <br />
+              <span
+                style="
+                  font-weight: bold;
+                  color: #010d3e;
+                  margin-top: 10px;
+                  display: block;
+                  font-size: 18px;
+                "
+                >TalentNest</span
+              >
+            </p>
+          </div>
+          <div class="header"></div>
+        </body>
+      </html>
+
       `,
       attachments: [
         {
           filename: "logo.png",
           path: "./logo.png",
-          cid: `unique@frack`,
+          cid: `unique@talentnest`,
         },
       ],
     };
@@ -170,35 +227,65 @@ export const sendContactEmail = async (req, res) => {
       to: process.env.EMAIL_USER,
       subject: `${subject} from ${company ? company : name}`,
       html: `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                body { margin: 0; }
-                .container { font-family: Arial, sans-serif;  background-color:white}
-                .header { width: 100%; height: 50px; background-color: #000080; }
-                .img-div { margin-top: 10px; width: 100%; display: flex; justify-content: center; align-items: center;}
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header"></div>
-                      <div class="img-div">
-          <img src="cid:unique@frack" alt="Frack Logo" /> 
-        </div>
-
-                <p>${message}</p>
-                              <p style="font-style: italic; color: rgb(80, 79, 79)"> ${phone}</p>
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              margin: 0;
+            }
+            .container {
+              font-family: Arial, sans-serif;
+              text-align: center;
+            }
+            .header {
+              width: 100%;
+              height: 50px;
+              background-color: #010d3e;
+            }
+      
+            .img-div {
+              width: 40px;
+              height: 40px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header"></div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                margin-top: 20px;
+              "
+            >
+              <img src="cid:unique@talentnest" class="img-div" />
+      
+              <div style="font-weight: 700; font-size: 24px; display: flex; gap: 0">
+                <span style="color: black">Talent</span>
+                <span style="color: #001354">Nest</span>
               </div>
-              <div class="header"></div>
-            </body>
-          </html>
-        `,
+            </div>
+            <h2 style="font-size: 32px; font-weight: 700; color: #010d3e">
+              Email Verification
+            </h2>
+            <p>${message}</p>
+            <p style="font-style: italic; color: rgb(80, 79, 79)"> ${phone}</p>
+          </div>
+          <div class="header"></div>
+        </body>
+      </html>
+
+      `,
       attachments: [
         {
           filename: "logo.png",
           path: "./logo.png",
-          cid: `unique@frack`,
+          cid: `unique@talentnest`,
         },
       ],
     };

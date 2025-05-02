@@ -1,7 +1,7 @@
 {
-  "name": "frack-backend",
+  "name": "talentnest-backend",
   "version": "1.0.0",
-  "description": "backend for frack application",
+  "description": "backend for talentnest application",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FolashadeOmoloja/Frack-backend.git"
+    "url": "git+https://github.com/FolashadeOmoloja/talentnest-backend.git"
   },
-  "author": "frack",
+  "author": "talentnest",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/FolashadeOmoloja/Frack-backend/issues"
+    "url": "https://github.com/FolashadeOmoloja/talentnest-backend/issues"
   },
-  "homepage": "https://github.com/FolashadeOmoloja/Frack-backend#readme",
+  "homepage": "https://github.com/FolashadeOmoloja/talentnest-backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.0",

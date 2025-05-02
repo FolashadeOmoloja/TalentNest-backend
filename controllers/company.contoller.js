@@ -409,6 +409,8 @@ export const updateProfilePhoto = async (req, res) => {
   }
 };
 
+//rather than creating a new notification for each admin, we can create a single notification and send it to all admins
+// This way, we can avoid creating multiple notifications for the same event and reduce redundancy.
 export const createCompanyNotification = async (req, res) => {
   try {
     const { receiverMessage, senderMessage, meetingUrl } = req.body;
@@ -478,6 +480,7 @@ export const getCompanyNotification = async (req, res) => {
       {
         $group: {
           _id: "$groupId", // Group by groupId to get only one per group
+          _uuid: { $first: "$_id" },
           receiverMessage: { $first: "$receiverMessage" },
           createdAt: { $first: "$createdAt" },
         },
