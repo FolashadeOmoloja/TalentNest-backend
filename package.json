@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FolashadeOmoloja/talentnest-backend.git"
+    "url": "git+https://github.com/FolashadeOmoloja/TalentNest-backend.git"
   },
   "author": "talentnest",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/FolashadeOmoloja/talentnest-backend/issues"
+    "url": "https://github.com/FolashadeOmoloja/TalentNest-backend/issues"
   },
-  "homepage": "https://github.com/FolashadeOmoloja/talentnest-backend#readme",
+  "homepage": "https://github.com/FolashadeOmoloja/TalentNest-backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.0",

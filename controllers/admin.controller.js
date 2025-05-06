@@ -283,7 +283,6 @@ export const loginAdmin = async (req, res) => {
         sameSite: "None",
         secure: true,
         path: "/",
-        domain: ".vercel.app",
       })
       .json({
         message: `Welcome back ${admin.firstName}`,
