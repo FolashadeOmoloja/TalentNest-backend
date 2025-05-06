@@ -227,14 +227,6 @@ export const login = async (req, res) => {
         sameSite: "None",
         secure: true,
         path: "/",
-        domain: ".vercel.app",
-      })
-      .cookie("middleware_token", token, {
-        httpOnly: false, // Must be accessible in middleware
-        secure: true,
-        sameSite: "None",
-        path: "/",
-        maxAge: 24 * 60 * 60 * 1000,
       })
       .json({
         message: `Welcome back ${talent.firstName} ${talent.lastName}`,
