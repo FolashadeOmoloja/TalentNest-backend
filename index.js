@@ -25,8 +25,7 @@ const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://localhost:3002",
-    // "https://frack.vercel.app/",
-    // "https://frack-admin.vercel.app/",
+    "https://talent-nest.vercel.app/",
   ],
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
