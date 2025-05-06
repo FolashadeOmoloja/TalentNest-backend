@@ -6,6 +6,7 @@ import CompanyNotification from "../models/companyNotification.model.js";
 import Admin from "../models/admin.model.js";
 import { v4 as uuidv4 } from "uuid"; // For generating a unique group ID
 import mongoose from "mongoose";
+import CryptoJS from "crypto-js";
 
 export const registerCompany = async (req, res) => {
   try {
@@ -97,6 +98,9 @@ export const registerCompany = async (req, res) => {
       privacyConsent,
     });
 
+    const userRole = "company";
+    const hashedRole = CryptoJS.SHA256(userRole).toString();
+
     // Generate a JWT token
     const tokenData = {
       companyId: newCompany._id,
@@ -119,6 +123,7 @@ export const registerCompany = async (req, res) => {
       .json({
         message: "Company registered successfully",
         company: newCompany,
+        hashedRole: hashedRole,
         success: true,
       });
   } catch (error) {
@@ -161,6 +166,9 @@ export const loginCompany = async (req, res) => {
       });
     }
 
+    const userRole = "company";
+    const hashedRole = CryptoJS.SHA256(userRole).toString();
+
     // Generate a JWT token
     const tokenData = {
       companyId: company._id,
@@ -183,6 +191,7 @@ export const loginCompany = async (req, res) => {
       .json({
         message: `Welcome back ${company.companyName}`,
         company,
+        hashedRole: hashedRole,
         success: true,
       });
   } catch (error) {
@@ -409,8 +418,6 @@ export const updateProfilePhoto = async (req, res) => {
   }
 };
 
-//rather than creating a new notification for each admin, we can create a single notification and send it to all admins
-// This way, we can avoid creating multiple notifications for the same event and reduce redundancy.
 export const createCompanyNotification = async (req, res) => {
   try {
     const { receiverMessage, senderMessage, meetingUrl } = req.body;
@@ -480,7 +487,6 @@ export const getCompanyNotification = async (req, res) => {
       {
         $group: {
           _id: "$groupId", // Group by groupId to get only one per group
-          _uuid: { $first: "$_id" },
           receiverMessage: { $first: "$receiverMessage" },
           createdAt: { $first: "$createdAt" },
         },

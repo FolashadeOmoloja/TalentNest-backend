@@ -75,16 +75,6 @@ export const registerAdmin = async (req, res) => {
       accountRole,
     });
 
-    // Generate a JWT token
-    const tokenData = {
-      adminId: newAdmin._id,
-      role: "admin",
-    };
-
-    const token = jwt.sign(tokenData, process.env.ADMIN_SECRET_KEY, {
-      expiresIn: "1d",
-    });
-
     return res.status(201).json({
       message: "Admin registered successfully",
       admin: newAdmin,
@@ -270,14 +260,14 @@ export const loginAdmin = async (req, res) => {
       adminId: admin._id,
       role: "admin",
     };
-    const token = jwt.sign(tokenData, process.env.ADMIN_SECRET_KEY, {
+    const token_admin = jwt.sign(tokenData, process.env.ADMIN_SECRET_KEY, {
       expiresIn: "1d",
     });
 
     // Set cookies and respond
     return res
       .status(200)
-      .cookie("token", token, {
+      .cookie("token_admin", token_admin, {
         maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
         httpOnly: true,
         sameSite: "None",
