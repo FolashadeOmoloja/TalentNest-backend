@@ -34,7 +34,7 @@ const corsOptions = {
 // Use CORS middleware with the specified options
 app.use(cors(corsOptions));
 
-const PORT = process.env.PORT || 3000; // Define the port number
+const PORT = process.env.PORT || 8000; // Define the port number
 //api's
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
