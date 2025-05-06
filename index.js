@@ -26,6 +26,7 @@ const corsOptions = {
     "http://localhost:3000",
     "http://localhost:3002",
     "https://talent-nest.vercel.app",
+    "https://talent-nest-admin.vercel.app",
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   optionsSuccessStatus: 204,
