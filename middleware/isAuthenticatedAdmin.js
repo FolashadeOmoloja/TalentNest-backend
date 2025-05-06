@@ -4,7 +4,7 @@ const isAuthenticated = (requiredRole = null) => {
   return async (req, res, next) => {
     try {
       // Retrieve the token from cookies
-      const token = req.cookies.token;
+      const token = req.cookies.token_admin;
 
       // Check if the token is not provided
       if (!token) {
