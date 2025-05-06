@@ -34,7 +34,6 @@ const corsOptions = {
 
 // Use CORS middleware with the specified options
 app.use(cors(corsOptions));
-// app.set("trust proxy", 1); // Trust the first proxy (needed for Render)
 
 const PORT = process.env.PORT || 8000; // Define the port number
 //api's

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cloudinary from "../utils/cloudinary.js";
 import TalentNotification from "../models/talentNotification.model.js";
+import CryptoJS from "crypto-js";
 
 // Register Talent Function
 export const registerTalent = async (req, res) => {
@@ -145,6 +146,9 @@ export const registerTalent = async (req, res) => {
       channel: channel ? channel : null,
     });
 
+    const userRole = "talent";
+    const hashedRole = CryptoJS.SHA256(userRole).toString();
+
     // Generate a JWT token
     const tokenData = {
       userId: newTalent._id,
@@ -167,6 +171,7 @@ export const registerTalent = async (req, res) => {
       .json({
         message: `Registration is sucessful`,
         talent: newTalent,
+        hashedRole: hashedRole,
         success: true,
       });
   } catch (error) {
@@ -209,6 +214,9 @@ export const login = async (req, res) => {
       });
     }
 
+    const userRole = "talent";
+    const hashedRole = CryptoJS.SHA256(userRole).toString();
+
     // Generate a JWT token
     const tokenData = {
       userId: talent._id,
@@ -231,6 +239,7 @@ export const login = async (req, res) => {
       .json({
         message: `Welcome back ${talent.firstName} ${talent.lastName}`,
         talent,
+        hashedRole: hashedRole,
         success: true,
       });
   } catch (error) {
