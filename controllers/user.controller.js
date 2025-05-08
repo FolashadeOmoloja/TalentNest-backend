@@ -328,6 +328,7 @@ export const updateProfile = async (req, res) => {
             folder: "resumes",
             public_id: `${talent.email}_resume`,
             overwrite: true,
+            access_mode: "public",
           },
           (error, uploadedResult) => {
             if (error) {
