@@ -326,7 +326,7 @@ export const updateProfile = async (req, res) => {
           {
             resource_type: "auto",
             folder: "resumes",
-            public_id: `${talent.email}_resume`,
+            public_id: `${emailAddress}_resume`,
             overwrite: true,
             access_mode: "public",
           },
