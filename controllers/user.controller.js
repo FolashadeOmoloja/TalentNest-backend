@@ -320,13 +320,14 @@ export const updateProfile = async (req, res) => {
 
     // Handle resume file upload if a file is provided
     if (req.file) {
+      const sanitizedEmail = talent.emailAddress.replace(/[^a-zA-Z0-9_.-]/g, "_");
       // Upload resume to Cloudinary or another file service
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             resource_type: "auto",
             folder: "resumes",
-            public_id: `${emailAddress}_resume`,
+            public_id: `${sanitizedEmail}_resume`,
             overwrite: true,
             access_mode: "public",
           },
@@ -386,13 +387,14 @@ export const updateProfilePhoto = async (req, res) => {
       });
     }
 
+    const sanitizedEmail = talent.emailAddress.replace(/[^a-zA-Z0-9_.-]/g, "_");
     // Upload the profile photo to Cloudinary
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           resource_type: "auto",
           folder: "profile-photos",
-          public_id: `${talent.email}_profile`,
+          public_id: `${sanitizedEmail}_profile`,
           overwrite: true,
         },
         (error, uploadedResult) => {

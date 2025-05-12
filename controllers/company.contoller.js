@@ -373,13 +373,15 @@ export const updateProfilePhoto = async (req, res) => {
       });
     }
 
+
+    const sanitizedEmail = company.emailAddress.replace(/[^a-zA-Z0-9_.-]/g, "_");
     // Upload the profile photo to Cloudinary
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           resource_type: "auto",
           folder: "profile-photos",
-          public_id: `${company.email}_profile`,
+          public_id: `${sanitizedEmail}_profile`,
           overwrite: true,
         },
         (error, uploadedResult) => {
