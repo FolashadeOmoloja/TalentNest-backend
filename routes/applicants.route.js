@@ -13,6 +13,7 @@ import {
   getAllCompanyApplicants,
   getAllAdminCompanyEmployed,
 } from "../controllers/applicants.controller.js";
+import { matchTalentsToJob } from "../controllers/resumematching.controller.js";
 
 const router = express.Router();
 
@@ -36,5 +37,7 @@ router.route("/:id/talents").get(isAuthenticatedAdmin("admin"), getApplicants);
 router
   .route("/:id/:jobId/status")
   .put(isAuthenticatedAdmin("admin"), updateStatus);
+
+router.route("/match-talents/:jobId").get(matchTalentsToJob);
 
 export default router;

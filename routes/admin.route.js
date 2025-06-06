@@ -41,6 +41,7 @@ import {
   getFilters,
 } from "../controllers/filters.controller.js";
 import { logout } from "../controllers/user.controller.js";
+// import { extractTalentResumesText } from "../controllers/resumematching.controller.js";
 
 const router = express.Router();
 
@@ -141,5 +142,6 @@ router.route("/delete-role").put(isAuthenticatedAdmin("admin"), deleteRole);
 
 // Get the entire Filters data
 router.route("/get-filters").get(isAuthenticatedAdmin("admin"), getFilters);
+
 
 export default router;
