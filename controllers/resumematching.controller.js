@@ -149,13 +149,32 @@ export const matchTalentsToJob = async (req, res) => {
 
     res.write(JSON.stringify({ step: "compare", success: true }));
 
+    for (const match of matches) {
+      if (match.score > 0.35) {
+        await Applicants.findOneAndUpdate(
+          { job: jobId, talent: match.talentId },
+          { score: match.score, status: "shortlisted" },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    const updatedJob = await Job.findById(jobId).populate({
+      path: "applicants",
+      options: { sort: { createdAt: -1 } },
+      populate: {
+        path: "talent",
+      },
+    });
+
     // === Step 4: Done! Send matches ===
     res.end(
       JSON.stringify({
         step: "done",
         success: true,
         message: "Match complete",
-        matches, // includes talentId and score
+        matches,
+        updatedJob,
       })
     );
   } catch (err) {
