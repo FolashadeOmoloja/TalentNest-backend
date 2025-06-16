@@ -145,15 +145,6 @@ export const getAllAppliedJobs = async (req, res) => {
     const applications = await Applicants.find({ talent: userId }).sort({
       createdAt: -1,
     });
-    // .populate({
-    //   path: "job",
-    //   options: { sort: { createdAt: -1 } },
-    //   populate: {
-    //     path: "company",
-    //     select: "name",
-    //   },
-    // });
-
     // Check if applications are found
     if (applications.length === 0) {
       return res.status(404).json({

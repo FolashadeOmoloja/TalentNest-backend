@@ -38,6 +38,6 @@ router
   .route("/:id/:jobId/status")
   .put(isAuthenticatedAdmin("admin"), updateStatus);
 
-router.route("/match-talents/:jobId").get(matchTalentsToJob);
+router.route("/match-talents/:jobId").get(isAuthenticatedAdmin("admin"),matchTalentsToJob);
 
 export default router;

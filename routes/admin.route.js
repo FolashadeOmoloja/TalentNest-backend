@@ -41,7 +41,11 @@ import {
   getFilters,
 } from "../controllers/filters.controller.js";
 import { logout } from "../controllers/user.controller.js";
-// import { extractTalentResumesText } from "../controllers/resumematching.controller.js";
+import { createScheduledMeeting } from "../controllers/scheduledMeeting.controller.js";
+import {
+  generateOfferLetterDraft,
+  sendOfferLetterAndUpdateStatus,
+} from "../controllers/hireDecline.controller.js";
 
 const router = express.Router();
 
@@ -142,6 +146,14 @@ router.route("/delete-role").put(isAuthenticatedAdmin("admin"), deleteRole);
 
 // Get the entire Filters data
 router.route("/get-filters").get(isAuthenticatedAdmin("admin"), getFilters);
-
+router
+  .route("/schedule-meeting")
+  .post(isAuthenticatedAdmin("admin"), createScheduledMeeting);
+router
+  .route("/generate-offer-letter-draft")
+  .post(isAuthenticatedAdmin("admin"), generateOfferLetterDraft);
+router
+  .route("/send-offer-letter-hire")
+  .post(isAuthenticatedAdmin("admin"), sendOfferLetterAndUpdateStatus);
 
 export default router;

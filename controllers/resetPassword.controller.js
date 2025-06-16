@@ -3,6 +3,12 @@ import Company from "../models/company.model.js";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import {
+  closingElement,
+  defaultStylesClass,
+  Logo,
+  logoAttachment,
+} from "../utils/logo.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -22,7 +28,7 @@ export const sendResetEmail = async (req, res) => {
     });
 
     //change link to hosted url
-    const resetLink = `http://localhost:3002/${route}?token=${token}`;
+    const resetLink = `https://talent-nest.vercel.app/${route}?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -33,14 +39,8 @@ export const sendResetEmail = async (req, res) => {
       <html>
         <head>
           <style>
-            body {
-              margin: 0;
-            }
-            .container {
-              font-family: Arial, sans-serif;
-              text-align: center;
-            }
-            .button {
+            ${defaultStylesClass}
+              .button {
               display: inline-block;
               padding: 10px 20px;
               font-size: 16px;
@@ -51,39 +51,12 @@ export const sendResetEmail = async (req, res) => {
               border-radius: 5px;
               margin-top: 20px;
             }
-      
-            .header {
-              width: 100%;
-              height: 50px;
-              background-color: #010d3e;
-            }
-      
-            .img-div {
-              width: 40px;
-              height: 40px;
-            }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header"></div>
-            <div
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                cursor: pointer;
-                margin-top: 20px;
-              "
-            >
-              <img src="cid:unique@talentnest" class="img-div" />
-      
-              <div style="font-weight: 700; font-size: 24px; display: flex; gap: 0">
-                <span style="color: black">Talent</span>
-                <span style="color: #001354">Nest</span>
-              </div>
-            </div>
+            ${Logo}
             <h2 style="font-size: 32px; font-weight: 700; color: #010d3e">
               Email Verification
             </h2>
@@ -94,32 +67,14 @@ export const sendResetEmail = async (req, res) => {
             </p>
             <a href="${resetLink}" class="button">Verify Email</a>
             <p>If you did not request this, please ignore this email.</p>
-            <p>
-              Best regards, <br />
-              <span
-                style="
-                  font-weight: bold;
-                  color: #010d3e;
-                  margin-top: 10px;
-                  display: block;
-                  font-size: 18px;
-                "
-                >TalentNest</span
-              >
-            </p>
+            ${closingElement}
           </div>
           <div class="header"></div>
         </body>
       </html>
 
       `,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: "./logo.png",
-          cid: `unique@talentnest`,
-        },
-      ],
+      attachments: [logoAttachment],
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -219,8 +174,7 @@ export const resetPassword = async (req, res) => {
 };
 
 export const sendContactEmail = async (req, res) => {
-  const { name, email, company, phone, subject, message, approvalCheck } =
-    req.body;
+  const { name, email, company, phone, subject, message } = req.body;
   try {
     const mailOptions = {
       from: email,
@@ -231,23 +185,7 @@ export const sendContactEmail = async (req, res) => {
       <html>
         <head>
           <style>
-            body {
-              margin: 0;
-            }
-            .container {
-              font-family: Arial, sans-serif;
-              text-align: center;
-            }
-            .header {
-              width: 100%;
-              height: 50px;
-              background-color: #010d3e;
-            }
-      
-            .img-div {
-              width: 40px;
-              height: 40px;
-            }
+          ${defaultStylesClass}
           </style>
         </head>
         <body>
@@ -270,9 +208,6 @@ export const sendContactEmail = async (req, res) => {
                 <span style="color: #001354">Nest</span>
               </div>
             </div>
-            <h2 style="font-size: 32px; font-weight: 700; color: #010d3e">
-              Email Verification
-            </h2>
             <p>${message}</p>
             <p style="font-style: italic; color: rgb(80, 79, 79)"> ${phone}</p>
           </div>
@@ -281,13 +216,7 @@ export const sendContactEmail = async (req, res) => {
       </html>
 
       `,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: "./logo.png",
-          cid: `unique@talentnest`,
-        },
-      ],
+      attachments: [logoAttachment],
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
