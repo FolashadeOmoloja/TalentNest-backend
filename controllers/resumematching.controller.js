@@ -4,6 +4,7 @@ import axios from "axios";
 import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
 import { embedText } from "../utils/embed.js";
+import { cohere } from "../lib/cohere.js";
 
 // Utility to download + extract
 async function downloadResume(resumeUrl) {
@@ -39,6 +40,33 @@ function formatJobDescription(job) {
   ${description}
   `.trim();
 }
+
+export const generateFeedback = async (resumeText, jobRole, companyName) => {
+  const prompt = `
+You are an AI reviewing a resume for the position of ${jobRole} at ${companyName}.
+Here's the resume:
+
+""" 
+${resumeText}
+"""
+
+In 1-2 concise sentences, explain why this applicant might be a good match.
+`;
+
+  try {
+    const response = await cohere.generate({
+      model: "command",
+      prompt,
+      max_tokens: 80,
+      temperature: 0.4,
+    });
+
+    return response.generations?.[0]?.text?.trim();
+  } catch (err) {
+    console.error("Cohere feedback error:", err.message);
+    return null;
+  }
+};
 
 export const matchTalentsToJob = async (req, res) => {
   try {
@@ -150,10 +178,24 @@ export const matchTalentsToJob = async (req, res) => {
     res.write(JSON.stringify({ step: "compare", success: true }));
 
     for (const match of matches) {
-      if (match.score > 0.35) {
+      if (match.score > 0.5) {
+        const matchedResume = extractedResumes.find(
+          (r) => r.talentId.toString() === match.talentId.toString()
+        );
+
+        let feedback = null;
+
+        if (match.score > 0.5 && matchedResume?.text.length > 300) {
+          feedback = await generateFeedback(
+            matchedResume.text,
+            job.role,
+            job.companyName
+          );
+        }
+
         await Applicants.findOneAndUpdate(
           { job: jobId, talent: match.talentId },
-          { score: match.score, status: "shortlisted" },
+          { score: match.score, status: "shortlisted", feedback: feedback },
           { upsert: true, new: true }
         );
       }

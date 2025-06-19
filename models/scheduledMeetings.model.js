@@ -10,14 +10,15 @@ const scheduledMeetingsSchema = new mongoose.Schema(
     meetingUrl: { type: String, default: null },
     jobTitle: { type: String, default: null },
     company: { type: String, default: null },
+    companyId: { type: String, default: null },
     applicantId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "talent",
       default: null,
     },
     jobId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "talent",
+      ref: "Job",
       default: null,
     },
   },

@@ -11,6 +11,8 @@ import {
 } from "../utils/logo.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { updateApplicantStatus } from "../utils/updateApplicantStatus.js";
+import Job from "../models/job.model.js";
+import Applicants from "../models/applicants.model.js";
 
 export const generateOfferLetterDraft = async (req, res) => {
   try {
@@ -35,14 +37,13 @@ export const generateOfferLetterDraft = async (req, res) => {
        - <br><p>The ${companyName} Team (via TalentNest Hiring)</p>
        `;
 
-    // const cohereRes = await cohere.generate({
-    //   model: "command",
-    //   prompt,
-    //   max_tokens: 400,
-    //   temperature: 0.7,
-    // });
-    // const draft = cohereRes.generations[0].text;
-    const draft = `<p>Congratulations on your appointment as a Product Designer at Vertex Dynamics! We are thrilled to offer you this position, which we believe will be an excellent fit for your skills and experience.</p><p>Your employment start date will be Monday, March 23rd, 2025. We encourage you to confirm this date with your TalentNest Hiring representative and confirm that you are free to begin your employment during this time. </p><p>We are excited to have you join the Vertex Dynamics team! We value your unique point of view and the contributions you will make to our organization. As a Product Designer, we trust that your creativity and innovative thinking will bring fresh and exciting perspectives to our design projects. You'll be an integral part of our team, working closely with our talented professionals to create exceptional design solutions that deliver remarkable outcomes. We are confident that you will thrive in this role and look forward to witnessing the impact of your work.</p><p>Once again, congratulations! We at Vertex Dynamics and TalentNest Hiring are proud to welcome you aboard, and we eagerly anticipate working with you.</p><p>— The Vertex Dynamics Team (via TalentNest Hiring)</p>`;
+    const cohereRes = await cohere.generate({
+      model: "command",
+      prompt,
+      max_tokens: 400,
+      temperature: 0.7,
+    });
+    const draft = cohereRes.generations[0].text;
 
     return res.status(200).json({
       success: true,
@@ -192,13 +193,20 @@ export const sendOfferLetterAndUpdateStatus = async (req, res) => {
 
 export const declineAndUpdateStatus = async (req, res) => {
   try {
-    const { talentId, talentMail, jobRole, companyName, talentName, jobId } =
-      req.body;
+    const {
+      html,
+      talentId,
+      talentMail,
+      jobRole,
+      companyName,
+      talentName,
+      jobId,
+    } = req.body;
     const htmlContent = GenerateDeclineHtml(talentName, jobRole, companyName);
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: "omolojashade@gmail.com",
-      subject: `Welcome to the Team – Your Offer Letter from ${companyName}`,
+      subject: `Update on Your Application for the ${jobRole} Role at ${companyName}`,
       html: htmlContent,
       attachments: [logoAttachment],
     };
@@ -229,6 +237,81 @@ export const declineAndUpdateStatus = async (req, res) => {
       message: "Applicant Declined!",
       updatedApplicants,
     });
+  } catch (err) {
+    console.log("Error occured:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const endHireProcess = async (req, res) => {
+  try {
+    const { jobId } = req.body;
+    console.log(jobId);
+    const job = await Job.findById(jobId)
+      .populate({
+        path: "applicants",
+        options: { sort: { createdAt: -1 } },
+        populate: { path: "talent" },
+      })
+      .populate({ path: "company" });
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+    const applicants = job.applicants;
+
+    //for each applicant not hired send an email to them that they have been declined and update their status to decline
+    for (const applicant of applicants) {
+      if (applicant.status !== "Hired") {
+        const htmlContent = GenerateDeclineHtml(
+          applicant.talent.firstName,
+          job.role,
+          job.company.companyName
+        );
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: "omolojashade@gmail.com",
+          subject: `Update on Your Application for the ${job.role} Role at ${job.company.companyName}`,
+          html: htmlContent,
+          attachments: [logoAttachment],
+        };
+        try {
+          await sendEmail(mailOptions);
+        } catch (err) {
+          console.error("Could not send offer email:", err);
+          return res
+            .status(400)
+            .json({ success: false, message: "Failed to send email" });
+        }
+
+        await Applicants.findOneAndUpdate(
+          { job: jobId, talent: applicant.talent._id },
+          { status: "Declined" },
+          { upsert: true, new: true }
+        );
+      }
+    }
+
+    //get the updated job and update the job's status to closed
+    const updatedJob = await Job.findByIdAndUpdate(jobId, {
+      status: "Closed",
+    }).populate({
+      path: "applicants",
+      options: { sort: { createdAt: -1 } },
+      populate: {
+        path: "talent",
+      },
+    });
+
+    if (!updatedJob) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Error occured while closing job" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "Job closed!", updatedJob });
   } catch (err) {
     console.log("Error occured:", err);
     return res

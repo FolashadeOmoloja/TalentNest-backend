@@ -14,6 +14,7 @@ const applicantSchema = new mongoose.Schema(
       required: true,
     },
     score: { type: Number, default: 0 },
+    feedback: { type: String, default: "" },
     status: {
       type: String,
       enum: ["Under Review", "Shortlisted", "Interview", "Hired", "Declined"],

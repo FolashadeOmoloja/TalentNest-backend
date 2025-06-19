@@ -185,12 +185,9 @@ export const getApplicants = async (req, res) => {
     const job = await Job.findById(jobId).populate({
       path: "applicants",
       options: { sort: { createdAt: -1 } },
-      populate: {
-        path: "talent",
-      },
+      populate: { path: "talent" },
     });
 
-    // Check if job is found
     if (!job) {
       return res.status(404).json({
         message: "Job not found.",
@@ -198,13 +195,11 @@ export const getApplicants = async (req, res) => {
       });
     }
 
-    // Return successful response with job details and applicants
     return res.status(200).json({
       job,
       success: true,
     });
   } catch (error) {
-    // Log the error and return a server error response
     console.error("Error retrieving applicants:", error);
     return res.status(500).json({
       message:

@@ -41,8 +41,15 @@ import {
   getFilters,
 } from "../controllers/filters.controller.js";
 import { logout } from "../controllers/user.controller.js";
-import { createScheduledMeeting } from "../controllers/scheduledMeeting.controller.js";
 import {
+  createScheduledMeeting,
+  deleteScheduledMeeting,
+  getAllScheduledMeetings,
+  updateScheduledMeeting,
+} from "../controllers/scheduledMeeting.controller.js";
+import {
+  declineAndUpdateStatus,
+  endHireProcess,
   generateOfferLetterDraft,
   sendOfferLetterAndUpdateStatus,
 } from "../controllers/hireDecline.controller.js";
@@ -150,10 +157,27 @@ router
   .route("/schedule-meeting")
   .post(isAuthenticatedAdmin("admin"), createScheduledMeeting);
 router
+  .route("/get-schedule-meeting")
+  .get(isAuthenticatedAdmin("admin"), getAllScheduledMeetings);
+
+router
+  .route("/update-meeting/:id")
+  .put(isAuthenticatedAdmin("admin"), updateScheduledMeeting);
+
+router
+  .route("/delete-meeting/:id")
+  .delete(isAuthenticatedAdmin("admin"), deleteScheduledMeeting);
+router
   .route("/generate-offer-letter-draft")
   .post(isAuthenticatedAdmin("admin"), generateOfferLetterDraft);
 router
   .route("/send-offer-letter-hire")
   .post(isAuthenticatedAdmin("admin"), sendOfferLetterAndUpdateStatus);
+router
+  .route("/decline-applicants")
+  .post(isAuthenticatedAdmin("admin"), declineAndUpdateStatus);
+router
+  .route("/end-hire-process")
+  .post(isAuthenticatedAdmin("admin"), endHireProcess);
 
 export default router;
