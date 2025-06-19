@@ -188,7 +188,7 @@ export const updateScheduledMeeting = async (req, res) => {
 
     const updatedScheduledMeeting = await ScheduledMeetings.find();
     return res.status(200).json({
-      message: "Meeting scheduled successfully.",
+      message: "Meeting updated successfully.",
       success: true,
       data: updatedMeeting,
       updatedScheduledMeeting,
