@@ -147,7 +147,7 @@ export const deleteAdminAccount = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: "Adnib admin deleted successfully.",
+      message: "admin deleted successfully.",
       success: true,
     });
   } catch (error) {

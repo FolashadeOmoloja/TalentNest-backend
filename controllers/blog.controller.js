@@ -27,32 +27,33 @@ export const createBlogPost = async (req, res) => {
     let imageUrl = null;
 
     if (req.file) {
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "auto",
-            folder: "blog-photos",
-            public_id: `${title}_profile`,
-            overwrite: true,
-          },
-          (error, uploadedResult) => {
-            if (error) {
-              return reject(error);
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "auto",
+              folder: "blog-photos",
+              public_id: `${title}_profile`,
+              overwrite: true,
+            },
+            (error, uploadedResult) => {
+              if (error) {
+                return reject(error);
+              }
+              return resolve(uploadedResult);
             }
-            return resolve(uploadedResult);
-          }
-        );
+          );
 
-        uploadStream.end(req.file.buffer);
-      }).catch((error) => {
+          uploadStream.end(req.file.buffer);
+        });
+        imageUrl = result.secure_url;
+      } catch (error) {
         console.error("Cloudinary upload error:", error);
         return res.status(500).json({
           message: "Blog post photo upload failed",
           success: false,
         });
-      });
-
-      imageUrl = result.secure_url;
+      }
     }
 
     const blogPost = new BlogPost({
