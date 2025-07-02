@@ -13,19 +13,29 @@ const router = express.Router();
 // Create a new blog post
 router
   .route("/create-blog")
-  .post(isAuthenticatedAdmin("admin"), singleUpload, createBlogPost);
+  .post(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    singleUpload,
+    createBlogPost
+  );
 
 // Get all blog posts
-router.route("/get-blogs").get(isAuthenticatedAdmin("admin"), getAllBlogPosts);
+router
+  .route("/get-blogs")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllBlogPosts);
 
 // Edit a specific blog post by ID
 router
   .route("/edit-blog/:id")
-  .put(isAuthenticatedAdmin("admin"), singleUpload, editBlogPost);
+  .put(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    singleUpload,
+    editBlogPost
+  );
 
 // Delete a specific blog post by ID
 router
   .route("/delete-blog/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteBlogPost);
+  .delete(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteBlogPost);
 
 export default router;

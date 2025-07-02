@@ -18,15 +18,6 @@ export const registerAdmin = async (req, res) => {
       accountRole,
     } = req.body;
 
-    const superAdminId = req.id;
-    const superAdmin = await Admin.findById(superAdminId);
-    if (!superAdmin || superAdmin.accountRole !== "SuperAdmin") {
-      return res.status(403).json({
-        message: "Access denied",
-        success: false,
-      });
-    }
-
     // Check if all required fields are provided
     const requiredFields = [
       firstName,
@@ -93,17 +84,14 @@ export const updateAdmin = async (req, res) => {
   try {
     const adminId = req.params.id;
     let admin = await Admin.findById(adminId);
-
-    const { firstName, lastName, phoneNumber, emailAddress, accountRole } =
-      req.body;
-    const superAdminId = req.id;
-    const superAdmin = await Admin.findById(superAdminId);
-    if (!superAdmin || superAdmin.accountRole !== "SuperAdmin") {
-      return res.status(403).json({
-        message: "Access denied",
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin account not found.",
         success: false,
       });
     }
+    const { firstName, lastName, phoneNumber, emailAddress, accountRole } =
+      req.body;
     if (firstName) admin.firstName = firstName;
     if (lastName) admin.lastName = lastName;
     if (emailAddress) admin.emailAddress = emailAddress;
@@ -129,14 +117,6 @@ export const updateAdmin = async (req, res) => {
 export const deleteAdminAccount = async (req, res) => {
   try {
     const adminId = req.params.id;
-    const superAdminId = req.id;
-    const superAdmin = await Admin.findById(superAdminId);
-    if (!superAdmin || superAdmin.accountRole !== "SuperAdmin") {
-      return res.status(403).json({
-        message: "Access denied",
-        success: false,
-      });
-    }
     const deletedAdmin = await Admin.findByIdAndDelete(adminId);
 
     if (!deletedAdmin) {
@@ -161,17 +141,8 @@ export const deleteAdminAccount = async (req, res) => {
 
 export const resetAdminPassword = async (req, res) => {
   try {
-    const superAdminId = req.id;
     const adminId = req.params.id;
     const { password } = req.body;
-
-    const superAdmin = await Admin.findById(superAdminId);
-    if (!superAdmin || superAdmin.accountRole !== "SuperAdmin") {
-      return res.status(403).json({
-        message: "Access denied",
-        success: false,
-      });
-    }
 
     const admin = await Admin.findById(adminId);
     if (!admin) {
@@ -258,7 +229,7 @@ export const loginAdmin = async (req, res) => {
     // Generate a JWT token
     const tokenData = {
       adminId: admin._id,
-      role: "admin",
+      role: admin.accountRole,
     };
     const token_admin = jwt.sign(tokenData, process.env.ADMIN_SECRET_KEY, {
       expiresIn: "1d",

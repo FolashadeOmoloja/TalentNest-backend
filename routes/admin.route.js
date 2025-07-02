@@ -57,127 +57,179 @@ import {
 const router = express.Router();
 
 // Register a new admin
-router.route("/register").post(isAuthenticatedAdmin("admin"), registerAdmin);
+router
+  .route("/register")
+  .post(isAuthenticatedAdmin(["SuperAdmin"]), registerAdmin);
 router
   .route("/update-admin/:id")
-  .put(isAuthenticatedAdmin("admin"), updateAdmin);
+  .put(isAuthenticatedAdmin(["SuperAdmin"]), updateAdmin);
 router
   .route("/delete-admin/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteAdminAccount);
+  .delete(isAuthenticatedAdmin(["SuperAdmin"]), deleteAdminAccount);
 router
   .route("/reset-admin-password/:id")
-  .put(isAuthenticatedAdmin("admin"), resetAdminPassword);
-router.route("/get-admin").get(isAuthenticatedAdmin("admin"), getAllAdmin);
+  .put(isAuthenticatedAdmin(["SuperAdmin"]), resetAdminPassword);
+router
+  .route("/get-admin")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllAdmin);
 
 // Login a admin
 router.route("/login").post(loginLimiter, loginAdmin);
 router.route("/logout").get(logout);
-router.route("/get-talents").get(isAuthenticatedAdmin("admin"), getAllTalents);
+router
+  .route("/get-talents")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllTalents);
 router
   .route("/set-company-notification/:id")
-  .post(isAuthenticatedAdmin("admin"), createCompanyNotification);
+  .post(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    createCompanyNotification
+  );
 router
   .route("/set-talent-notification/:id")
-  .post(isAuthenticatedAdmin("admin"), createTalentNotification);
+  .post(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    createTalentNotification
+  );
 router
   .route("/get-companies")
-  .get(isAuthenticatedAdmin("admin"), getAllCompanies);
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllCompanies);
 router
   .route("/get-admin-notification")
-  .get(isAuthenticatedAdmin("admin"), getAdminNotification);
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAdminNotification);
 router
   .route("/update-talent/:id")
-  .put(isAuthenticatedAdmin("admin"), updateTalentProfileStatus);
+  .put(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    updateTalentProfileStatus
+  );
 router
   .route("/delete-talent/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteTalentProfile);
+  .delete(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteTalentProfile);
 router
   .route("/delete-company/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteCompanyProfile);
+  .delete(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteCompanyProfile);
 router
   .route("/delete-notice/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteAdminNotificationById);
+  .delete(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    deleteAdminNotificationById
+  );
 router
   .route("/delete-all-notice")
-  .delete(isAuthenticatedAdmin("admin"), deleteAllAdminNotifications);
+  .delete(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    deleteAllAdminNotifications
+  );
 
 // Create a new review
 router
   .route("/create-review")
-  .post(isAuthenticatedAdmin("admin"), createReview);
+  .post(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), createReview);
 
 // Get all reviews
-router.route("/get-reviews").get(isAuthenticatedAdmin("admin"), getAllReviews);
+router
+  .route("/get-reviews")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllReviews);
 
 // Edit a specific review by ID
-router.route("/edit-review/:id").put(isAuthenticatedAdmin("admin"), editReview);
+router
+  .route("/edit-review/:id")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), editReview);
 
 // Delete a specific review by ID
 router
   .route("/delete-review/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteReview);
+  .delete(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteReview);
 
 // Create a new FAQ
-router.route("/create-faq").post(isAuthenticatedAdmin("admin"), createFaq);
+router
+  .route("/create-faq")
+  .post(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), createFaq);
 
 // Get all FAQs
-router.route("/get-faqs").get(isAuthenticatedAdmin("admin"), getAllFaqs);
+router
+  .route("/get-faqs")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllFaqs);
 
 // Edit a specific FAQ by ID
-router.route("/edit-faq/:id").put(isAuthenticatedAdmin("admin"), editFaqs);
+router
+  .route("/edit-faq/:id")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), editFaqs);
 
 // Delete a specific FAQ by ID
 router
   .route("/delete-faq/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteFaq);
+  .delete(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteFaq);
 
 // Add a skill to the skills array
-router.route("/add-skill").put(isAuthenticatedAdmin("admin"), addSkill);
+router
+  .route("/add-skill")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), addSkill);
 
 // Delete a skill from the skills array
-router.route("/delete-skill").put(isAuthenticatedAdmin("admin"), deleteSkill);
+router
+  .route("/delete-skill")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteSkill);
 
 // Add a country to the country array
-router.route("/add-country").put(isAuthenticatedAdmin("admin"), addCountry);
+router
+  .route("/add-country")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), addCountry);
 
 // Delete a country from the country array
 router
   .route("/delete-country")
-  .put(isAuthenticatedAdmin("admin"), deleteCountry);
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteCountry);
 
 // Add a role to the role array
-router.route("/add-role").put(isAuthenticatedAdmin("admin"), addRole);
+router
+  .route("/add-role")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), addRole);
 
 // Delete a role from the role array
-router.route("/delete-role").put(isAuthenticatedAdmin("admin"), deleteRole);
+router
+  .route("/delete-role")
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), deleteRole);
 
 // Get the entire Filters data
-router.route("/get-filters").get(isAuthenticatedAdmin("admin"), getFilters);
+router
+  .route("/get-filters")
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getFilters);
 router
   .route("/schedule-meeting")
-  .post(isAuthenticatedAdmin("admin"), createScheduledMeeting);
+  .post(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), createScheduledMeeting);
 router
   .route("/get-schedule-meeting")
-  .get(isAuthenticatedAdmin("admin"), getAllScheduledMeetings);
+  .get(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), getAllScheduledMeetings);
 
 router
   .route("/update-meeting/:id")
-  .put(isAuthenticatedAdmin("admin"), updateScheduledMeeting);
+  .put(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), updateScheduledMeeting);
 
 router
   .route("/delete-meeting/:id")
-  .delete(isAuthenticatedAdmin("admin"), deleteScheduledMeeting);
+  .delete(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    deleteScheduledMeeting
+  );
 router
   .route("/generate-offer-letter-draft")
-  .post(isAuthenticatedAdmin("admin"), generateOfferLetterDraft);
+  .post(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    generateOfferLetterDraft
+  );
 router
   .route("/send-offer-letter-hire")
-  .post(isAuthenticatedAdmin("admin"), sendOfferLetterAndUpdateStatus);
+  .post(
+    isAuthenticatedAdmin(["SuperAdmin", "Admin"]),
+    sendOfferLetterAndUpdateStatus
+  );
 router
   .route("/decline-applicants")
-  .post(isAuthenticatedAdmin("admin"), declineAndUpdateStatus);
+  .post(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), declineAndUpdateStatus);
 router
   .route("/end-hire-process")
-  .post(isAuthenticatedAdmin("admin"), endHireProcess);
+  .post(isAuthenticatedAdmin(["SuperAdmin", "Admin"]), endHireProcess);
 
 export default router;

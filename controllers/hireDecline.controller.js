@@ -72,8 +72,11 @@ const generatePDF = async (html, filename) => {
   await page.setContent(html, { waitUntil: "networkidle0" });
 
   // Generate folder path dynamically (safe for Fly.io's ephemeral fs)
-  // const outputDir = path.resolve("/tmp/pdfs"); // safer than "../lib/pdfs" on serverless
-  const outputDir = path.join(process.cwd(), "lib/pdfs");
+  // const outputDir = path.join(process.cwd(), "lib/pdfs");
+  const outputDir =
+    process.env.NODE_ENV === "production"
+      ? path.resolve("/tmp/pdfs")
+      : path.join(process.cwd(), "lib/pdfs");
 
   await fs.mkdir(outputDir, { recursive: true }); // ensure directory exists
 

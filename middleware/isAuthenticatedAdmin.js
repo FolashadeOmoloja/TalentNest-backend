@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const isAuthenticated = (requiredRole = null) => {
+const isAuthenticated = (requiredRoles = []) => {
   return async (req, res, next) => {
     try {
       // Retrieve the token from cookies
@@ -16,19 +16,17 @@ const isAuthenticated = (requiredRole = null) => {
 
       // Verify the token
       const decoded = jwt.verify(token, process.env.ADMIN_SECRET_KEY);
+      // Attach the admin ID and role to the request object
+      req.id = decoded.adminId;
+      req.role = decoded.role; // If role is needed elsewhere
 
       // If the token is valid but role-based access control is required
-      if (requiredRole && decoded.role !== requiredRole) {
+      if (requiredRoles.length > 0 && !requiredRoles.includes(decoded.role)) {
         return res.status(403).json({
           message: "Forbidden: Access is denied",
           success: false,
         });
       }
-
-      // Attach the admin ID and role to the request object
-      req.id = decoded.adminId;
-      req.role = decoded.role; // If role is needed elsewhere
-
       // Proceed to the next middleware or route handler
       next();
     } catch (error) {

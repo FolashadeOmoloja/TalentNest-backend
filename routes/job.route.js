@@ -31,10 +31,10 @@ router
   .get(isAuthenticatedCompany("company"), getCompanyJobs);
 router
   .route("/getSingleCompanyJobs/:id")
-  .get(isAuthenticatedAdmin("admin"), getAdminCompanyJobs);
+  .get(isAuthenticated(["SuperAdmin", "Admin"]), getAdminCompanyJobs);
 
 router
   .route("/delete-job/:id/:jobId")
-  .delete(isAuthenticatedAdmin("admin"), adminDeleteCompanyJobs);
+  .delete(isAuthenticated(["SuperAdmin", "Admin"]), adminDeleteCompanyJobs);
 
 export default router;
