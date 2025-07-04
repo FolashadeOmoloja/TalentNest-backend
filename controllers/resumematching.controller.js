@@ -1,5 +1,6 @@
 import Applicants from "../models/applicants.model.js";
 import Job from "../models/job.model.js";
+import Talent from "../models/talent.model.js";
 import axios from "axios";
 import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
@@ -81,13 +82,14 @@ const calculateSimilarity = (vecA, vecB) => {
   if (vecA.length !== vecB.length) return 0;
 
   let dot = 0;
-  for (let i = 0; i < vecA.length; i++) dot += vecA[i] * vecB[i];
+  for (let i = 0; i < vecA.length; i++) {
+    dot += vecA[i] * vecB[i];
+  }
 
   const magA = Math.sqrt(vecA.reduce((sum, val) => sum + val * val, 0));
   const magB = Math.sqrt(vecB.reduce((sum, val) => sum + val * val, 0));
 
-  const rawSim = magA && magB ? dot / (magA * magB) : 0;
-  return Math.min(rawSim, 0.8); // Cap raw similarity at 0.8 to avoid runaway scores
+  return magA && magB ? dot / (magA * magB) : 0;
 };
 
 const keywordMatch = (resumeText, skills) => {
@@ -129,230 +131,29 @@ const experienceScore = (jobDescription, experienceYears) => {
   return 0;
 };
 
-const roleMatch = (talentProfession, jobRole) => {
+const roleMatch = async (talentProfession, jobRole) => {
   if (!talentProfession || !jobRole) return 0;
 
-  const talentTokens = talentProfession.toLowerCase().split(/\s+/);
-  const jobTokens = jobRole.toLowerCase().split(/\s+/);
+  const professionVec = await embedText(talentProfession);
+  const roleVec = await embedText(jobRole);
 
-  const sharedTokens = jobTokens.filter((token) =>
-    talentTokens.includes(token)
-  );
+  const similarity = calculateSimilarity(professionVec, roleVec);
 
-  if (sharedTokens.length === 0) return 0;
-
-  const bonus = Math.min(0.005 * sharedTokens.length, 0.03);
-  return bonus;
+  // Apply your structured interpretation
+  if (similarity >= 0.85) {
+    console.log(talentProfession, jobRole, similarity, "strong");
+    return 0.05; // Strong match, small positive bonus
+  } else if (similarity >= 0.7) {
+    console.log(talentProfession, jobRole, similarity, "acceptable");
+    return 0.0; // Acceptable match, neutral
+  } else if (similarity >= 0.5) {
+    console.log(talentProfession, jobRole, similarity, "weak");
+    return -0.05; // Weak/borderline match, small penalty
+  } else {
+    console.log(talentProfession, jobRole, similarity, "mismatch");
+    return -0.1; // Likely mismatch, heavier penalty
+  }
 };
-
-// Main function to match talents to job
-
-// export const matchTalentsToJob = async (req, res) => {
-//   const timer = setTimeout(() => {
-//     if (!res.writableEnded) {
-//       console.error("⛔️ Timeout: force ending response");
-//       res.write(JSON.stringify({ step: "timeout", success: false }) + "\n");
-//       res.end();
-//     }
-//   }, 60000); // 60 seconds
-
-//   try {
-//     const jobId = req.params.jobId;
-//     if (!jobId) {
-//       res.write(
-//         JSON.stringify({
-//           step: "init",
-//           success: false,
-//           message: "Job not found",
-//         }) + "\n"
-//       );
-//       return res.end();
-//     }
-
-//     console.log("🟡 Fetching job from DB...");
-//     const job = await Job.findById(jobId);
-//     if (!job) {
-//       res.write(
-//         JSON.stringify({
-//           step: "extract",
-//           success: false,
-//           message: "Job not found",
-//         }) + "\n"
-//       );
-//       return res.end();
-//     }
-
-//     console.log("🟡 Fetching applicants...");
-//     const applications = await Applicants.find({ job: jobId }).populate(
-//       "talent",
-//       "resume experienceYears profession experienceLevel skills"
-//     );
-
-//     const extractedResumes = [];
-
-//     for (const app of applications) {
-//       const talent = app.talent;
-//       if (!talent?.resume) continue;
-
-//       try {
-//         console.log(`📄 Extracting resume for ${talent._id}...`);
-//         const text = await extractResumeText(talent.resume);
-//         if (text) {
-//           extractedResumes.push({ talent, text });
-//         }
-//       } catch (err) {
-//         console.error(
-//           `❌ Failed to extract resume for ${talent._id}:`,
-//           err.message
-//         );
-//         continue;
-//       }
-//     }
-
-//     if (extractedResumes.length === 0) {
-//       res.write(
-//         JSON.stringify({
-//           step: "extract",
-//           success: false,
-//           message: "No valid resumes found",
-//         }) + "\n"
-//       );
-//       return res.end();
-//     }
-
-//     res.write(JSON.stringify({ step: "extract", success: true }) + "\n");
-//     console.log("✅ Resume extraction complete");
-
-//     // === Step 2: Embed Job + Resumes ===
-//     const formattedJD = formatJobDescription(job);
-//     console.log("🔵 Embedding job description...");
-//     const jobEmbedding = await embedText(formattedJD);
-
-//     if (!jobEmbedding) {
-//       res.write(
-//         JSON.stringify({
-//           step: "embed",
-//           success: false,
-//           message: "Failed to embed job description",
-//         }) + "\n"
-//       );
-//       return res.end();
-//     }
-
-//     const embeddedResumes = [];
-
-//     for (const resu of extractedResumes) {
-//       console.log(`🔵 Embedding resume for ${resu.talent._id}...`);
-//       const resumeEmbedding = await embedText(resu.text);
-//       if (resumeEmbedding) {
-//         embeddedResumes.push({
-//           talent: resu.talent,
-//           text: resu.text,
-//           embedding: resumeEmbedding,
-//         });
-//       } else {
-//         console.error(`❌ Failed to embed resume for ${resu.talent._id}`);
-//       }
-//     }
-
-//     res.write(JSON.stringify({ step: "embed", success: true }) + "\n");
-//     console.log("✅ Embedding complete");
-
-//     // === Step 3: Compare Similarities and Candidate Scores ===
-//     const matches = [];
-
-//     for (const r of embeddedResumes) {
-//       const keywordRaw = keywordMatch(r.text, job.skills);
-//       const keywordScore = keywordRaw < 0.3 ? 0 : keywordRaw;
-
-//       const similarity = calculateSimilarity(jobEmbedding, r.embedding);
-//       const experienceBonus = experienceScore(
-//         job.description,
-//         r.talent.experienceYears
-//       );
-//       const roleBonus = roleMatch(r.talent.profession, job.role);
-
-//       let totalScore = similarity + keywordScore + experienceBonus + roleBonus;
-//       if (totalScore > 1) totalScore = 1;
-
-//       matches.push({
-//         talentId: r.talent._id,
-//         score: totalScore,
-//       });
-
-//       console.log(
-//         `📊 ${r.talent._id} — sim: ${similarity.toFixed(
-//           2
-//         )}, keyword: ${keywordScore.toFixed(
-//           2
-//         )}, exp: ${experienceBonus}, role: ${roleBonus}, total: ${totalScore}`
-//       );
-//     }
-
-//     res.write(JSON.stringify({ step: "compare", success: true }) + "\n");
-//     console.log("✅ Similarity comparison complete");
-
-//     // === Step 4: Update shortlisted ===
-//     for (const match of matches) {
-//       if (match.score > 0.5) {
-//         const resumeData = extractedResumes.find(
-//           (r) => r.talent._id.toString() === match.talentId.toString()
-//         );
-
-//         let feedback = null;
-//         if (resumeData?.text?.length > 300) {
-//           console.log(`📝 Generating feedback for ${resumeData.talent._id}...`);
-//           feedback = await generateFeedback(
-//             resumeData.text,
-//             job.role,
-//             job.companyName
-//           );
-//         }
-
-//         await Applicants.findOneAndUpdate(
-//           { job: jobId, talent: match.talentId },
-//           { score: match.score, status: "shortlisted", feedback },
-//           { upsert: true, new: true }
-//         );
-//         console.log(`✅ Shortlisted ${match.talentId}`);
-//       }
-//     }
-
-//     const updatedJob = await Job.findById(jobId).populate({
-//       path: "applicants",
-//       options: { sort: { createdAt: -1 } },
-//       populate: { path: "talent" },
-//     });
-
-//     res.end(
-//       JSON.stringify({
-//         step: "done",
-//         success: true,
-//         message: "Match complete",
-//         matches,
-//         updatedJob,
-//       }) + "\n"
-//     );
-//     console.log("✅ Matching process complete");
-//   } catch (err) {
-//     console.error("❌ Match error:", err);
-//     if (!res.writableEnded) {
-//       res.write(
-//         JSON.stringify({
-//           step: "error",
-//           success: false,
-//           message: err.message,
-//         }) + "\n"
-//       );
-//     }
-//   } finally {
-//     clearTimeout(timer);
-//     if (!res.writableEnded) {
-//       res.end();
-//       console.log("⚠️ Response ended via finally block");
-//     }
-//   }
-// };
 
 export const matchTalentsToJob = async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
@@ -414,7 +215,12 @@ export const matchTalentsToJob = async (req, res) => {
 
     // Step 2: Embed
     console.log("Embedding job description...");
-    const jobEmbedding = await embedText(formatJobDescription(job));
+    let jobEmbedding = job.embeddedJob;
+    if (!jobEmbedding || !jobEmbedding.length) {
+      jobEmbedding = await embedText(formatJobDescription(job));
+      await Job.findByIdAndUpdate(jobId, { embeddedJob: jobEmbedding });
+    }
+
     if (!jobEmbedding) {
       sendEvent({
         step: "embed",
@@ -424,33 +230,54 @@ export const matchTalentsToJob = async (req, res) => {
       return res.end();
     }
 
-    const embeddedResumes = [];
-    for (const resu of extractedResumes) {
-      const resumeEmbedding = await embedText(resu.text);
-      if (resumeEmbedding) {
-        embeddedResumes.push({
-          talent: resu.talent,
-          text: resu.text,
-          embedding: resumeEmbedding,
-        });
-      }
-    }
+    const embeddedResumes = (
+      await Promise.all(
+        extractedResumes.map(async (resu) => {
+          let resumeEmbedding = resu.talent.embeddedResume;
+
+          if (!resumeEmbedding || !resumeEmbedding.length) {
+            resumeEmbedding = await embedText(resu.text);
+            // Save embedding
+            await Talent.findByIdAndUpdate(resu.talent._id, {
+              embeddedResume: resumeEmbedding,
+            });
+          }
+
+          return resumeEmbedding
+            ? {
+                talent: resu.talent,
+                text: resu.text,
+                embedding: resumeEmbedding,
+              }
+            : null;
+        })
+      )
+    ).filter(Boolean);
+
     sendEvent({ step: "embed", success: true });
     console.log("Embedding complete");
 
     // Step 3: Compare
     const matches = [];
-    for (const r of embeddedResumes) {
+    const roleBonuses = await Promise.all(
+      embeddedResumes.map((r) => roleMatch(r.talent.profession, job.role))
+    );
+
+    for (let i = 0; i < embeddedResumes.length; i++) {
+      const r = embeddedResumes[i];
+      const roleBonus = roleBonuses[i];
+
       const keywordScore = Math.max(0, keywordMatch(r.text, job.skills));
-      const similarity = calculateSimilarity(jobEmbedding, r.embedding);
+      const rawSim = calculateSimilarity(jobEmbedding, r.embedding);
+      const similarity = Math.min(rawSim, 0.8);
       const experienceBonus = experienceScore(
         job.description,
         r.talent.experienceYears
       );
-      const roleBonus = roleMatch(r.talent.profession, job.role);
 
       let totalScore = similarity + keywordScore + experienceBonus + roleBonus;
       totalScore = Math.min(totalScore, 1); // Cap at 1
+
       console.log(
         `Comparing ${r.talent._id} — sim: ${similarity.toFixed(
           2
@@ -461,6 +288,7 @@ export const matchTalentsToJob = async (req, res) => {
 
       matches.push({ talentId: r.talent._id, score: totalScore });
     }
+
     sendEvent({ step: "compare", success: true });
     console.log("Similarity comparison complete");
 
@@ -477,7 +305,7 @@ export const matchTalentsToJob = async (req, res) => {
 
         await Applicants.findOneAndUpdate(
           { job: jobId, talent: match.talentId },
-          { score: match.score, status: "shortlisted", feedback },
+          { score: match.score, status: "Shortlisted", feedback },
           { upsert: true, new: true }
         );
       }

@@ -26,6 +26,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
     } = req.body;
 
     const companyId = req.id;
@@ -44,6 +45,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
     ];
 
     const missingFields = requiredFields.filter((field) => !field);
@@ -68,6 +70,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
       company: companyId,
       created_by: companyId,
     });
@@ -288,6 +291,7 @@ export const editJob = async (req, res) => {
       department,
       employmentType,
       description,
+      descriptionHtml,
       status,
     } = req.body;
 
@@ -318,8 +322,9 @@ export const editJob = async (req, res) => {
     if (department) job.department = department;
     if (employmentType) job.employmentType = employmentType;
     if (description) job.description = description;
+    if (descriptionHtml) job.descriptionHtml = descriptionHtml;
     if (status) job.status = status;
-
+    job.embeddedJob = []; //reset to an empty array for re-embedding
     // Save the updated job post
     await job.save();
 

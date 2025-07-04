@@ -320,7 +320,10 @@ export const updateProfile = async (req, res) => {
 
     // Handle resume file upload if a file is provided
     if (req.file) {
-      const sanitizedEmail = talent.emailAddress.replace(/[^a-zA-Z0-9_.-]/g, "_");
+      const sanitizedEmail = talent.emailAddress.replace(
+        /[^a-zA-Z0-9_.-]/g,
+        "_"
+      );
       // Upload resume to Cloudinary or another file service
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -350,6 +353,7 @@ export const updateProfile = async (req, res) => {
 
       talent.resume = result.secure_url; // Update the resume URL
       talent.resumeOriginalName = req.file.originalname;
+      talent.embeddedResume = []; // Reset embedded resume if a new file is uploaded
     }
 
     // Save the updated profile

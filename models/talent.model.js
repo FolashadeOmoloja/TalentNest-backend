@@ -25,6 +25,10 @@ const TalentSchema = new mongoose.Schema({
   },
   resume: { type: String }, // URL to resume file
   resumeOriginalName: { type: String },
+  embeddedResume: {
+    type: [Number],
+    default: [],
+  },
   preference: {
     type: String,
     required: true,

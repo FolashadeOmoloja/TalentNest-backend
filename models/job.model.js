@@ -54,13 +54,13 @@ const jobSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // employmentType: {
-    //   type: String,
-    //   required: true,
-    // },
     description: {
       type: String,
       required: true,
+    },
+    descriptionHtml: {
+      type: String,
+      default: "",
     },
     status: {
       type: String,
@@ -71,6 +71,10 @@ const jobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
       required: true,
+    },
+    embeddedJob: {
+      type: [Number],
+      default: [],
     },
     applicants: [
       {
