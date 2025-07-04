@@ -1,5 +1,6 @@
 // backend/models/job.model.js
 import mongoose from "mongoose";
+import { nanoid } from "nanoid";
 
 const jobSchema = new mongoose.Schema(
   {
@@ -61,6 +62,12 @@ const jobSchema = new mongoose.Schema(
     descriptionHtml: {
       type: String,
       default: "",
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      default: () => nanoid(12),
     },
     status: {
       type: String,

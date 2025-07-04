@@ -10,6 +10,7 @@ import {
   editJob,
   getAdminCompanyJobs,
   adminDeleteCompanyJobs,
+  getJobBySlug,
 } from "../controllers/job.contoller.js";
 
 const router = express.Router();
@@ -23,6 +24,7 @@ router.route("/get").get(getAllJobs);
 // router.route("/talent/get").get(isAuthenticated("talent"), getAllJobs);
 
 router.route("/get/:id").get(isAuthenticatedCompany("company"), getJobById);
+router.route("/getJob/:slug").get(getJobBySlug);
 router.route("/talent/get/:id").get(isAuthenticated("talent"), getJobById);
 
 // Route for getting jobs posted by a specific company (company only)
