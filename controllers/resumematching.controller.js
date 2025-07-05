@@ -151,7 +151,7 @@ const roleMatch = async (talentProfession, jobRole) => {
     return -0.05; // Weak/borderline match, small penalty
   } else {
     console.log(talentProfession, jobRole, similarity, "mismatch");
-    return -0.1; // Likely mismatch, heavier penalty
+    return -0.15; // Likely mismatch, heavier penalty
   }
 };
 
