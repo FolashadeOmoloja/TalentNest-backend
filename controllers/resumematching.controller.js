@@ -151,7 +151,7 @@ const roleMatch = async (talentProfession, jobRole) => {
     return -0.05; // Weak/borderline match, small penalty
   } else {
     console.log(talentProfession, jobRole, similarity, "mismatch");
-    return -0.1; // Likely mismatch, heavier penalty
+    return -0.15; // Likely mismatch, heavier penalty
   }
 };
 
@@ -294,7 +294,7 @@ export const matchTalentsToJob = async (req, res) => {
 
     // Step 4: Update shortlisted
     for (const match of matches) {
-      if (match.score > 0.5) {
+      if (match.score > 0.55) {
         const resumeData = extractedResumes.find(
           (r) => r.talent._id.toString() === match.talentId.toString()
         );
