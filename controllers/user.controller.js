@@ -273,13 +273,11 @@ export const updateProfile = async (req, res) => {
     let talent = await Talent.findById(talentId);
 
     if (!talent) {
-      return res.status(404).json({
-        message: "Talent not found",
-        success: false,
-      });
+      return res
+        .status(404)
+        .json({ message: "Talent not found", success: false });
     }
 
-    // Update only the fields that exist in the request body
     const {
       firstName,
       lastName,
@@ -304,55 +302,44 @@ export const updateProfile = async (req, res) => {
     if (preference) talent.preference = preference;
 
     if (password) {
-      // Validate the current password before allowing update
       const isPasswordMatch = await bcrypt.compare(
         req.body.currentPassword,
         talent.password
       );
       if (!isPasswordMatch) {
-        return res.status(400).json({
-          message: "Incorrect current password",
-          success: false,
-        });
+        return res
+          .status(400)
+          .json({ message: "Incorrect current password", success: false });
       }
       talent.password = await bcrypt.hash(password, 10);
     }
 
-    // Handle resume file upload if a file is provided
     if (req.file) {
-      const sanitizedEmail = talent.emailAddress.replace(/[^a-zA-Z0-9_.-]/g, "_");
-      // Upload resume to Cloudinary or another file service
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            resource_type: "auto",
-            folder: "resumes",
-            public_id: `${sanitizedEmail}_resume`,
-            overwrite: true,
-            access_mode: "public",
-          },
-          (error, uploadedResult) => {
-            if (error) {
-              return reject(error);
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            {
+              upload_preset: "talentnest_resume_upload", // ✅ only this!
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
             }
-            return resolve(uploadedResult);
-          }
-        );
+          );
+          uploadStream.end(req.file.buffer);
+        });
 
-        uploadStream.end(req.file.buffer);
-      }).catch((error) => {
+        talent.resume = result.secure_url;
+        talent.resumeOriginalName = req.file.originalname;
+      } catch (error) {
         console.error("Resume upload error:", error);
         return res.status(500).json({
           message: "Resume upload failed",
           success: false,
-        });
-      });
-
-      talent.resume = result.secure_url; // Update the resume URL
-      talent.resumeOriginalName = req.file.originalname;
+        }); // ✅ EARLY RETURN
+      }
     }
 
-    // Save the updated profile
     await talent.save();
 
     return res.status(200).json({
