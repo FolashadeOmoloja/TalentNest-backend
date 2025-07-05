@@ -4,6 +4,7 @@ import { validationResult } from "express-validator";
 import CompanyNotification from "../models/companyNotification.model.js";
 import Admin from "../models/admin.model.js";
 import Company from "../models/company.model.js";
+import { nanoid } from "nanoid";
 
 export const postJob = async (req, res) => {
   try {
@@ -26,6 +27,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
     } = req.body;
 
     const companyId = req.id;
@@ -44,6 +46,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
     ];
 
     const missingFields = requiredFields.filter((field) => !field);
@@ -68,6 +71,7 @@ export const postJob = async (req, res) => {
       country,
       department,
       description,
+      descriptionHtml,
       company: companyId,
       created_by: companyId,
     });
@@ -139,7 +143,6 @@ export const getAllJobs = async (req, res) => {
   }
 };
 
-// student
 export const getJobById = async (req, res) => {
   try {
     const jobId = req.params.id;
@@ -168,6 +171,38 @@ export const getJobById = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving job by ID:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+    });
+  }
+};
+
+export const getJobBySlug = async (req, res) => {
+  try {
+    const jobSlug = req.params.slug;
+    if (!jobSlug) {
+      return res.status(400).json({
+        message: "Invalid job slug.",
+        success: false,
+      });
+    }
+
+    const job = await Job.findOne({ slug: jobSlug });
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found.",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      job,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error retrieving job by slug:", error);
     return res.status(500).json({
       message: "Internal server error",
       success: false,
@@ -288,6 +323,7 @@ export const editJob = async (req, res) => {
       department,
       employmentType,
       description,
+      descriptionHtml,
       status,
     } = req.body;
 
@@ -318,9 +354,15 @@ export const editJob = async (req, res) => {
     if (department) job.department = department;
     if (employmentType) job.employmentType = employmentType;
     if (description) job.description = description;
+    if (descriptionHtml) job.descriptionHtml = descriptionHtml;
     if (status) job.status = status;
-
+    job.embeddedJob = []; //reset to an empty array for re-embedding
     // Save the updated job post
+
+    if (!job.slug) {
+      job.slug = nanoid(12);
+    }
+
     await job.save();
 
     // If job is closed, check if any other jobs are open for the company

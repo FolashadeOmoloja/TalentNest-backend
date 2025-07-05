@@ -315,29 +315,40 @@ export const updateProfile = async (req, res) => {
     }
 
     if (req.file) {
-      try {
-        const result = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            {
-              upload_preset: "talentnest_resume_upload", // ✅ only this!
-            },
-            (error, result) => {
-              if (error) return reject(error);
-              resolve(result);
+      const sanitizedEmail = talent.emailAddress.replace(
+        /[^a-zA-Z0-9_.-]/g,
+        "_"
+      );
+      // Upload resume to Cloudinary or another file service
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: "auto",
+            folder: "resumes",
+            public_id: `${sanitizedEmail}_resume`,
+            overwrite: true,
+            access_mode: "public",
+          },
+          (error, uploadedResult) => {
+            if (error) {
+              return reject(error);
             }
-          );
-          uploadStream.end(req.file.buffer);
-        });
+            return resolve(uploadedResult);
+          }
+        );
 
-        talent.resume = result.secure_url;
-        talent.resumeOriginalName = req.file.originalname;
-      } catch (error) {
+        uploadStream.end(req.file.buffer);
+      }).catch((error) => {
         console.error("Resume upload error:", error);
         return res.status(500).json({
           message: "Resume upload failed",
           success: false,
-        }); // ✅ EARLY RETURN
-      }
+        });
+      });
+
+      talent.resume = result.secure_url; // Update the resume URL
+      talent.resumeOriginalName = req.file.originalname;
+      talent.embeddedResume = []; // Reset embedded resume if a new file is uploaded
     }
 
     await talent.save();
